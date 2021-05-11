@@ -1,0 +1,36 @@
+.card {
+  font-family: arial;
+  font-size: 20px;
+  text-align: center;
+  color: black;
+  background-color: white;
+}
+
+.question {
+  font-size: 30px;
+}
+
+.answer {
+  font-size: 30px;
+}
+
+.secondary {
+  font-size: 20px;
+  color: gray;
+}
+
+.writing {
+  display: flex;
+  flex-flow: column nowrap;
+  font-size: 15px;
+}
+
+.kana {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.play {
+  margin-left: 10px;
+}

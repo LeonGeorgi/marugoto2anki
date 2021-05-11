@@ -1,0 +1,32 @@
+<span class="answer">{{English}}</span>
+
+<br>
+
+<span class="secondary">{{German}}</span>```
+{{FrontSide}}
+
+<hr id=answer>
+
+
+<span class="answer">{{Kanji}}</span>
+
+<hr id=answer>
+
+
+<div class="kana">
+<div class="writing">
+<span>{{Kana}}</span>
+<span>{{Phonetic}}</span>
+</div>
+<div class="play">{{Pronunciation (Audio)}}</div>
+</div>
+
+<hr>
+
+<img src="{{Hint}}" alt="{{Hint}}"/>
+
+<hr>
+
+<video controls width="290" height="220">
+  <source src="{{Animation}}" type="video/mp4">
+</video>

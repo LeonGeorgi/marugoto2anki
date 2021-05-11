@@ -1,0 +1,18 @@
+<span class="question">{{English}}</span>
+<br>
+<span class="secondary">{{German}}</span>
+```
+{{FrontSide}}
+
+<hr id=answer>
+
+<div class="kana">
+<span class="answer">{{Kana}}</span>
+<div class="pronunciation">{{Pronunciation (Audio)}}</div>
+</div>
+<hr>
+{{Kanji}}
+
+<br>
+
+{{Romaji}}
