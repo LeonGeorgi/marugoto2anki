@@ -1,11 +1,10 @@
+import csv
+import itertools
 from pathlib import Path
 from typing import List
+from urllib import request
 
 import requests
-from urllib import request
-import csv
-import imageio
-import itertools
 from PIL import Image
 
 

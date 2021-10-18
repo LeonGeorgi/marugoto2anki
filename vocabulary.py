@@ -22,7 +22,7 @@ if __name__ == '__main__':
         writer = csv.writer(f1, delimiter=';')
         for entry in response.json()["DATA"]:
             audio_id: str = entry["RAWID"]
-            kana:str = entry["KANA"]
+            kana: str = entry["KANA"]
             kanji = entry["KANJI"]
             romaji = entry["ROMAJI"]
             english = entry["UWRD"]
