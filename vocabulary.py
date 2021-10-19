@@ -50,12 +50,12 @@ def download_marugoto_audio(audio_id: str, out_folder: str, level: str) -> str:
     """
     url_level = level.replace('-', '')
     audio_url = f"https://words.marugotoweb.jp/res/keyword/audio/{url_level}W/{audio_id.replace('-', 'W_')}.mp3"
-    request.urlretrieve(audio_url, f"{out_folder}/audio/{audio_id}.mp3")
+    request.urlretrieve(audio_url, f"{out_folder}/media/{audio_id}.mp3")
     return f"{audio_id}.mp3"
 
 
 def create_out_folder(out_folder):
-    Path(f"{out_folder}/audio/").mkdir(parents=True, exist_ok=True)
+    Path(f"{out_folder}/media/").mkdir(parents=True, exist_ok=True)
 
 
 def request_marugoto_words(learn_ex, ls, lv) -> list:
