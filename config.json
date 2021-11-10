@@ -1,0 +1,56 @@
+{
+  "levels": [
+    "a1",
+    "a21",
+    "a22",
+    "a2b1",
+    "b11",
+    "b21"
+  ],
+  "urls": {
+    "a1": {
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/starter_a/starter_activities_vocabulary_index_en.xlsx",
+        "https://www.marugoto.org/assets/docs/teacher/resource/starter_c/starter_competences_vocabulary_index_en.xlsx"
+      ]
+    },
+    "a21": {
+      "de": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary1_c/elementary1_competences_vocabulary_index_de.xlsx",
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary1_a/elementary1_activities_vocabulary_index_de.xlsx"
+      ],
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary1_a/elementary1_activities_vocabulary_index_en.xlsx",
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary1_c/elementary1_competences_vocabulary_index_en.xlsx"
+      ]
+    },
+    "a22": {
+      "de": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary2_c/elementary2_competences_vocabulary_index_de.xlsx",
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary2_a/elementary2_activities_vocabulary_index_de.xlsx"
+      ],
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary2_a/elementary2_activities_vocabulary_index_en.xlsx",
+        "https://www.marugoto.org/assets/docs/teacher/resource/elementary2_c/elementary2_competences_vocabulary_index_en.xlsx"
+      ]
+    },
+    "a2b1": {
+      "de": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/pre_intermediate/preintermediate_vocabulary_index_de.xlsx"
+      ],
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/pre_intermediate/preintermediate_vocabulary_index_en.xlsx"
+      ]
+    },
+    "b11": {
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/intermediate1/intermediate1_vocabulary_list_en_excel.xlsx"
+      ]
+    },
+    "b12": {
+      "en": [
+        "https://www.marugoto.org/assets/docs/teacher/resource/intermediate2/intermediate2_vocabulary_list_en_excel.xlsx"
+      ]
+    }
+  }
+}
