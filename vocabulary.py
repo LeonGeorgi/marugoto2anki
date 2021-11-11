@@ -1,4 +1,5 @@
 import csv
+import itertools
 import json
 from pathlib import Path
 from typing import List, Dict
@@ -142,10 +143,16 @@ def main_2():
     if language is None:
         return
 
-    new_words_for_lesson = get_new_vocabulary(level, language, config)
-
-    for word in new_words_for_lesson:
-        print(word.get_main_japanese(), word.translation)
+    new_words_for_lesson: List[Vocab] = get_new_vocabulary(level, language, config)
+    new_words_sorted: List[Vocab] = sorted(new_words_for_lesson, key=lambda x: x.get_lesson_name())
+    for group, l in itertools.groupby(new_words_sorted, lambda x: x.get_lesson_name()):
+        out_folder = f"out/excel/{level}/{group}"
+        create_out_folder(out_folder)
+        with open(f'{out_folder}/cards.csv', 'w') as file:
+            writer = csv.writer(file, delimiter=';')
+            for vocab in l:
+                writer.writerow(vocab.get_csv_row())
+        print(group, len(list(l)))
     print(len(new_words_for_lesson))
 
 
@@ -232,7 +239,8 @@ def get_new_words(old_list: List[Vocab], new_list: List[Vocab]):
 
 
 def a1_to_list(data_frame: pd.DataFrame):
-    return [VocabA1(row.lesson // 2,
+    return [VocabA1(row.id,
+                    str((row.lesson + 1) // 2),
                     row.translation,
                     row.lesson,
                     row.kana,
@@ -245,7 +253,7 @@ def a1_to_list(data_frame: pd.DataFrame):
 def read_excel_a1(url):
     df: pd.DataFrame = pd.read_excel(url, header=1)
     df.rename(columns={
-        df.columns[0]: "number",
+        df.columns[0]: "id",
         df.columns[1]: "kana",
         df.columns[2]: "kanji",
         df.columns[3]: "accent",
@@ -260,15 +268,16 @@ def read_excel_a1(url):
 
 
 def a2_to_list(data_frame: pd.DataFrame):
-    return [VocabA2(row.lesson // 2,
-                    row.translation,
-                    row.lesson,
-                    row.kana,
-                    row.kanji,
-                    row.accent,
-                    row.dictionary_form,
-                    row.verb_group,
-                    row.word_type) for index, row in data_frame.iterrows()]
+    return [VocabA2(str(row.id),
+                    str((row.lesson + 1) // 2),
+                    row.translation.strip(),
+                    str(row.lesson).strip(),
+                    row.kana.strip(),
+                    row.kanji.strip(),
+                    row.accent.strip(),
+                    str(row.dictionary_form).strip(),
+                    str(row.verb_group).strip(),
+                    row.word_type.strip()) for index, row in data_frame.iterrows()]
 
 
 def read_excel_a2(url):
@@ -276,7 +285,7 @@ def read_excel_a2(url):
     df: pd.DataFrame = file_instance.parse(header=1, sheet_name=file_instance.sheet_names[-1])
     # df: pd.DataFrame = pd.read_excel(url, header=1, sheet_name=)
     df.rename(columns={
-        df.columns[0]: "number",
+        df.columns[0]: "id",
         df.columns[1]: "kana",
         df.columns[2]: "kanji",
         df.columns[3]: "accent",
@@ -292,7 +301,8 @@ def read_excel_a2(url):
 
 
 def b_to_list(data_frame: pd.DataFrame) -> List[Vocab]:
-    return [VocabB(row.topic,
+    return [VocabB(row.id,
+                   row.topic,
                    row.translation,
                    row.part,
                    row.japanese,
@@ -304,7 +314,7 @@ def b_to_list(data_frame: pd.DataFrame) -> List[Vocab]:
 def read_excel_b(url):
     df: pd.DataFrame = pd.read_excel(url, header=1)
     df.rename(columns={
-        df.columns[0]: "number",
+        df.columns[0]: "id",
         df.columns[1]: "topic",
         df.columns[2]: "part",
         df.columns[3]: "japanese",

@@ -5,7 +5,8 @@ from typing import Tuple, Optional
 
 @dataclass
 class Vocab(ABC):
-    topic: int
+    id: str
+    topic: str
     translation: str
 
     @abstractmethod
@@ -20,10 +21,18 @@ class Vocab(ABC):
     def get_main_japanese(self) -> str:
         pass
 
+    @abstractmethod
+    def get_lesson_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def get_csv_row(self) -> Tuple:
+        pass
+
 
 @dataclass
 class VocabB(Vocab):
-    part: int
+    part: str
     japanese: str
     pronunciation: str
     comment: Optional[str]
@@ -38,10 +47,13 @@ class VocabB(Vocab):
     def get_main_japanese(self) -> str:
         return self.japanese
 
+    def get_lesson_name(self) -> str:
+        return f"{self.topic}-{self.part}"
+
 
 @dataclass
 class VocabA1(Vocab):
-    lesson: int
+    lesson: str
 
     kana: str
     kanji: str
@@ -59,17 +71,20 @@ class VocabA1(Vocab):
     def get_main_japanese(self) -> str:
         return self.kana
 
+    def get_lesson_name(self) -> str:
+        return f"{self.topic}-{self.lesson}"
+
 
 @dataclass
 class VocabA2(Vocab):
-    lesson: int
+    lesson: str
 
     kana: str
     kanji: str
 
     accent: str
     dictionary_form: Optional[str]
-    verb_group: Optional[int]
+    verb_group: Optional[str]
     word_type: str
 
     def get_kana_with_translation(self) -> Tuple[str, str]:
@@ -80,3 +95,20 @@ class VocabA2(Vocab):
 
     def get_main_japanese(self) -> str:
         return self.kana
+
+    def get_lesson_name(self) -> str:
+        return f"{self.topic}-{self.lesson}"
+
+    def get_csv_row(self) -> Tuple:
+        return (
+            self.id,
+            self.topic,
+            self.lesson,
+            self.kana,
+            self.kanji if self.kanji != self.kana else "",
+            self.translation,
+            self.accent,
+            self.verb_group,
+            self.dictionary_form,
+            self.word_type
+        )
