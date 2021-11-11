@@ -1,13 +1,13 @@
 import csv
 import json
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, List, Dict, Tuple
+from typing import List, Dict
 from urllib import request
 
 import pandas as pd
 import requests
+
+from classes import Vocab, VocabA1, VocabA2, VocabB
 
 
 def main():
@@ -111,64 +111,6 @@ def request_marugoto_words(learn_ex, ls, lv) -> list:
     return response.json()['DATA']
 
 
-@dataclass
-class Vocab(ABC):
-    topic: int
-    translation: str
-
-    @abstractmethod
-    def get_kana_with_translation(self) -> Tuple[str, str]:
-        pass
-
-    @abstractmethod
-    def get_kanji(self) -> str:
-        pass
-
-    @abstractmethod
-    def get_main_japanese(self) -> str:
-        pass
-
-
-@dataclass
-class VocabB(Vocab):
-    part: int
-    japanese: str
-    pronunciation: str
-    comment: Optional[str]
-    comment_translation: Optional[str]
-
-    def get_kana_with_translation(self) -> Tuple[str, str]:
-        return self.japanese.strip(), self.translation.strip()
-
-    def get_kanji(self) -> str:
-        return self.japanese.strip()
-
-    def get_main_japanese(self) -> str:
-        return self.japanese
-
-
-@dataclass
-class VocabA(Vocab):
-    lesson: int
-
-    kana: str
-    kanji: str
-
-    accent: str
-    dictionary_form: Optional[str]
-    verb_group: Optional[int]
-    word_type: str
-
-    def get_kana_with_translation(self) -> Tuple[str, str]:
-        return self.kana.strip(), self.translation.strip()
-
-    def get_kanji(self) -> str:
-        return self.kanji.strip()
-
-    def get_main_japanese(self) -> str:
-        return self.kana
-
-
 def convert_lesson(lesson_string: str):
     return int(lesson_string.removesuffix("ス"))
 
@@ -249,9 +191,12 @@ def create_list_from_filenames(urls, level: str) -> List[Vocab]:
     entry_list: List[Vocab] = []
     for filename in urls:
         print(f"Downloading {filename}")
-        if level.startswith("a"):
-            df = read_excel_a(filename)
-            entry_list.extend(a_to_list(df))
+        if level.startswith("a1"):
+            df = read_excel_a1(filename)
+            entry_list.extend(a1_to_list(df))
+        elif level.startswith("a2"):
+            df = read_excel_a2(filename)
+            entry_list.extend(a2_to_list(df))
         elif level.startswith("b"):
             df = read_excel_b(filename)
             entry_list.extend(b_to_list(df))
@@ -286,20 +231,50 @@ def get_new_words(old_list: List[Vocab], new_list: List[Vocab]):
     return [entry for entry in new_list if not is_old(entry)]
 
 
-def a_to_list(data_frame: pd.DataFrame):
-    return [VocabA(row.lesson // 2,
-                   row.translation,
-                   row.lesson,
-                   row.kana,
-                   row.kanji,
-                   row.accent,
-                   row.dictionary_form,
-                   row.verb_group,
-                   row.word_type) for index, row in data_frame.iterrows()]
+def a1_to_list(data_frame: pd.DataFrame):
+    return [VocabA1(row.lesson // 2,
+                    row.translation,
+                    row.lesson,
+                    row.kana,
+                    row.kanji,
+                    row.accent,
+                    row.romaji,
+                    row.word_type) for index, row in data_frame.iterrows()]
 
 
-def read_excel_a(url):
+def read_excel_a1(url):
     df: pd.DataFrame = pd.read_excel(url, header=1)
+    df.rename(columns={
+        df.columns[0]: "number",
+        df.columns[1]: "kana",
+        df.columns[2]: "kanji",
+        df.columns[3]: "accent",
+        df.columns[4]: "romaji",
+        df.columns[5]: "translation",
+        df.columns[6]: "lesson",
+        df.columns[7]: "word_type",
+        df.columns[8]: "other",
+    }, inplace=True)
+    df["lesson"] = df["lesson"].astype(str).apply(convert_lesson)
+    return df
+
+
+def a2_to_list(data_frame: pd.DataFrame):
+    return [VocabA2(row.lesson // 2,
+                    row.translation,
+                    row.lesson,
+                    row.kana,
+                    row.kanji,
+                    row.accent,
+                    row.dictionary_form,
+                    row.verb_group,
+                    row.word_type) for index, row in data_frame.iterrows()]
+
+
+def read_excel_a2(url):
+    file_instance = pd.ExcelFile(url)
+    df: pd.DataFrame = file_instance.parse(header=1, sheet_name=file_instance.sheet_names[-1])
+    # df: pd.DataFrame = pd.read_excel(url, header=1, sheet_name=)
     df.rename(columns={
         df.columns[0]: "number",
         df.columns[1]: "kana",
@@ -339,10 +314,10 @@ def read_excel_b(url):
         df.columns[7]: "comment_translation",
         df.columns[8]: "page"
     }, inplace=True)
-    # df["lesson"] = df["lesson"].astype(str).apply(convert_lesson)
     return df
 
 
 if __name__ == '__main__':
-    main()
-    # main_2()
+    # main()
+    main_2()
+    # print(a1_to_list(read_excel_a1("starter_activities_vocabulary_index_en.xlsx")))
