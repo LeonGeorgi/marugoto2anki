@@ -1,7 +1,7 @@
-from typing import Dict, List
+from util.config import Config
 
 
-def select_language(available_languages: set[str]):
+def ask_user_for_language(available_languages: set[str]) -> str:
     if len(available_languages) == 1:
         language = next(iter(available_languages))
         print(f"Using language \"{language}\"")
@@ -15,23 +15,35 @@ def select_language(available_languages: set[str]):
     return language
 
 
-def determine_level(levels: list[str]):
-    level: str = input(f"Level [{','.join(levels)}]: ").strip().lower()
-    if level not in levels:
+def ask_user_for_level(available_levels: list[str]):
+    level: str = input(f"Level [{','.join(available_levels)}]: ").strip().lower()
+    if level not in available_levels:
         raise Exception(f"Level \"{level}\" not available")
-    return level, levels
+    return level
 
 
-def determine_language(config, level, levels):
-    urls: Dict[str, Dict[str, List[str]]] = config["urls"]
-    level_index = levels.index(level)
-    if level_index == 0:
-        continue_anyway = input("No previous level found. continue anyway [Y/n]? ").lower() in {"", "y", "yes"}
-        if not continue_anyway:
-            raise Exception("TODO")
-        available_languages = set(urls[level].keys())
+def ask_user_for_language_based_on_previous_language(config: Config, level: str) -> str:
+    available_languages = get_languages_for_prompt(config, level)
+    return ask_user_for_language(available_languages)
+
+
+def get_languages_for_prompt(config, level):
+    previous_level = config.get_previous_level(level)
+    if previous_level is None:
+        ask_user_to_continue_without_previous_level()
+        available_languages = config.get_available_languages_for_level(level)
     else:
-        prev_level = levels[level_index - 1]
-        available_languages = set(urls[level].keys()).intersection(urls[prev_level].keys())
-    language = select_language(available_languages)
-    return language
+        available_languages = config.get_available_languages_for_this_and_previous_level(level)
+    return available_languages
+
+
+def ask_user_to_continue_without_previous_level():
+    continue_anyway = input("No previous level found. continue anyway [Y/n]? ").lower() in {"", "y", "yes"}
+    if not continue_anyway:
+        raise Exception("TODO")
+
+
+def ask_user_for_level_and_language(config):
+    level = ask_user_for_level(config.available_levels)
+    language = ask_user_for_language_based_on_previous_language(config, level)
+    return language, level
