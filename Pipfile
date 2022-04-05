@@ -12,6 +12,7 @@ pillow = "*"
 pandas = "*"
 openpyxl = "*"
 fsspec = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"
