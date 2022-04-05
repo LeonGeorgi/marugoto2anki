@@ -1,12 +1,19 @@
+from util.classes import Vocab
 from util.config import Config
 from util.user_input import ask_user_for_level_and_language
+from util.vocab_export import FileExporter
 from util.vocab_service import VocabService
 
 
 def main():
     config = Config.parse_file("config.json")
     language, level = ask_user_for_level_and_language(config)
-    VocabService(level, language, config).retrieve_and_write_vocabulary()
+    vocabulary = VocabService(level, language, config).retrieve_vocabulary()
+    get_exporter(vocabulary, level).export_vocabulary()
+
+
+def get_exporter(vocabulary: list[Vocab], level: str):
+    return FileExporter(vocabulary, level)
 
 
 if __name__ == '__main__':
