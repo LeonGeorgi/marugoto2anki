@@ -13,6 +13,7 @@ pandas = "*"
 openpyxl = "*"
 fsspec = "*"
 coverage = "*"
+fire = "*"
 
 [requires]
 python_version = "3.8"
