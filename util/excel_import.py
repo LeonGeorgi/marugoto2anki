@@ -2,22 +2,27 @@ from typing import List
 
 import pandas as pd
 
-from util.classes import VocabA1, VocabA2, Vocab, VocabB
+from util.classes import VocabA1, VocabA2, Vocab, VocabB, VocabA2B1
+from util.excel.download import download_or_get_cached_file
+from util.excel.parser import ExcelParser
 from util.string_utils import convert_lesson
 
 
 def get_vocab_list_by_filenames(urls: list[str], level: str) -> List[Vocab]:
     entry_list: List[Vocab] = []
-    for filename in urls:
-        print(f"Downloading {filename}")
+    for url in urls:
+        file_path = download_or_get_cached_file(url)
+        parser = ExcelParser(file_path)
+        rows = parser.get_longest_sheet()
         if level.startswith("a1"):
-            df = read_excel_a1(filename)
-            entry_list.extend(a1_to_list(df))
+            entry_list.extend((VocabA1.from_table_row(row) for row in rows))
+        elif level.startswith('a2b1'):
+            entry_list.extend((VocabA2B1.from_table_row(row) for row in rows))
         elif level.startswith("a2"):
-            df = read_excel_a2(filename)
-            entry_list.extend(a2_to_list(df))
+            entry_list.extend((VocabA2.from_table_row(row) for row in rows[2:]))
+
         elif level.startswith("b"):
-            df = read_excel_b(filename)
+            df = read_excel_b(url)
             entry_list.extend(b_to_list(df))
         else:
             raise Exception(f"Unable to download and parse files for level {level}")

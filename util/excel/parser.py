@@ -1,9 +1,11 @@
+from pathlib import Path
+
 import pandas as pd
 
 
 class ExcelParser:
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: Path):
         self.file = pd.ExcelFile(filename)
 
     def get_sheet_names(self):
@@ -22,7 +24,7 @@ class ExcelParser:
 
 
 def _convert_row(row: pd.Series):
-    return [str(value) for name, value in row.iteritems()]
+    return tuple(str(value) for name, value in row.iteritems())
 
 
 def _convert_sheet(sheet):

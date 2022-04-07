@@ -9,11 +9,11 @@ def main():
     config = Config.parse_file("config.json")
     language, level = ask_user_for_level_and_language(config)
     vocabulary = VocabService(level, language, config).retrieve_vocabulary()
-    get_exporter(vocabulary, level).export_vocabulary()
+    get_exporter(vocabulary, level, language).export_vocabulary()
 
 
-def get_exporter(vocabulary: list[Vocab], level: str):
-    return FileExporter(vocabulary, level)
+def get_exporter(vocabulary: list[Vocab], level: str, language: str):
+    return FileExporter(vocabulary, level, language)
 
 
 if __name__ == '__main__':

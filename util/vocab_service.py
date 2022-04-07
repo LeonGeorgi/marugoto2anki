@@ -22,11 +22,11 @@ class VocabService:
         new_urls = self.config.get_urls(self.level, self.language)
         previous_level = self.config.get_previous_level(self.level)
 
-        old_urls: list[str] = []
+        previous_level_urls: list[str] = []
         if previous_level is not None:
-            old_urls = self.config.get_urls(previous_level, self.language)
+            previous_level_urls = self.config.get_urls(previous_level, self.language)
 
-        return self.get_new_vocabulary_by_filenames(previous_level, new_urls, old_urls)
+        return self.get_new_vocabulary_by_filenames(previous_level, new_urls, previous_level_urls)
 
     def get_new_vocabulary_by_filenames(self, prev_level: str, new_filenames: list[str],
                                         old_filenames: list[str]):
