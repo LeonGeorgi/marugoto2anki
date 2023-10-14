@@ -13,8 +13,7 @@ def main():
 
 
 def get_exporter(vocabulary: list[Vocab], level: str, language: str):
-    # return AnkiExporter(vocabulary, level, language)
-    return FileExporter(vocabulary, level, language)
+    return AnkiExporter(vocabulary, level, language)
 
 
 if __name__ == '__main__':
