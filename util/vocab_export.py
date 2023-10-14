@@ -21,7 +21,7 @@ class VocabExporter(ABC):
 
 
 @dataclass
-class FileExporter(VocabExporter):
+class AnkiExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
@@ -64,17 +64,17 @@ class FileExporter(VocabExporter):
 
 
 @dataclass
-class AnkiExporter(VocabExporter):
+class FileExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
 
     def export_vocabulary(self):
-        for group, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
+        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
             vocabs = list(l)
-            out_folder = f"out/excel/{self.level}/{self.language}/{group}"
+            out_folder = f"out/excel/{self.level}/{self.language}/{'-'.join(hierarchy)}"
             create_out_folder(out_folder)
-            print(group, len(vocabs))
+            print(hierarchy, len(vocabs))
             with open(f'{out_folder}/cards.csv', 'w') as file:
                 writer = csv.writer(file, delimiter=';')
                 for vocab in vocabs:
