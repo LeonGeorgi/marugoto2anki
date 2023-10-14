@@ -1,7 +1,7 @@
 from util.classes import Vocab
 from util.config import Config
 from util.user_input import ask_user_for_level_and_language
-from util.vocab_export import FileExporter
+from util.vocab_export import FileExporter, AnkiExporter
 from util.vocab_service import VocabService
 
 
@@ -13,6 +13,7 @@ def main():
 
 
 def get_exporter(vocabulary: list[Vocab], level: str, language: str):
+    # return AnkiExporter(vocabulary, level, language)
     return FileExporter(vocabulary, level, language)
 
 

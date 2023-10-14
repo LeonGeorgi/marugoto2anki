@@ -24,7 +24,7 @@ class ExcelParser:
 
 
 def _convert_row(row: pd.Series):
-    return tuple(str(value) for name, value in row.iteritems())
+    return tuple(str(value) for name, value in row.items())
 
 
 def _convert_sheet(sheet):

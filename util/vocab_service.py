@@ -15,7 +15,7 @@ class VocabService:
 
     def retrieve_vocabulary(self):
         new_words_for_lesson: List[Vocab] = self.get_new_vocabulary()
-        new_words_sorted: List[Vocab] = sorted(new_words_for_lesson, key=lambda x: x.get_lesson_name())
+        new_words_sorted: List[Vocab] = sorted(new_words_for_lesson, key=lambda x: x.get_lesson_hierarchy())
         return new_words_sorted
 
     def get_new_vocabulary(self):

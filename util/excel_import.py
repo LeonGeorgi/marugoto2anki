@@ -15,15 +15,13 @@ def get_vocab_list_by_filenames(urls: list[str], level: str) -> List[Vocab]:
         parser = ExcelParser(file_path)
         rows = parser.get_longest_sheet()
         if level.startswith("a1"):
-            entry_list.extend((VocabA1.from_table_row(row) for row in rows))
+            entry_list.extend((VocabA1.from_table_row(row) for row in rows[3:]))
         elif level.startswith('a2b1'):
-            entry_list.extend((VocabA2B1.from_table_row(row) for row in rows))
+            entry_list.extend((VocabA2B1.from_table_row(row) for row in rows[3:]))
         elif level.startswith("a2"):
-            entry_list.extend((VocabA2.from_table_row(row) for row in rows[2:]))
-
+            entry_list.extend((VocabA2.from_table_row(row) for row in rows[3:]))
         elif level.startswith("b"):
-            df = read_excel_b(url)
-            entry_list.extend(b_to_list(df))
+            entry_list.extend((VocabB.from_table_row(row) for row in rows[2:]))
         else:
             raise Exception(f"Unable to download and parse files for level {level}")
     return entry_list
