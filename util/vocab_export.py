@@ -21,7 +21,7 @@ class VocabExporter(ABC):
 
 
 @dataclass
-class FileExporter(VocabExporter):
+class AnkiExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
@@ -67,7 +67,7 @@ class FileExporter(VocabExporter):
 
 
 @dataclass
-class AnkiExporter(VocabExporter):
+class FileExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
