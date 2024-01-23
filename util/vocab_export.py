@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from util.classes import Vocab
+from util.config import Config
 
 sys.path.append("anki")
 import anki
@@ -14,7 +15,6 @@ from anki.storage import Collection
 
 
 class VocabExporter(ABC):
-
     @abstractmethod
     def export_vocabulary(self):
         pass
@@ -26,9 +26,12 @@ class FileExporter(VocabExporter):
     level: str
     language: str
 
+    config: Config
+
     def export_vocabulary(self):
         # Define the path to the Anki SQLite collection
-        anki_path = os.path.join(os.path.expanduser('~/Library/Application Support/Anki2/User 1'), 'collection.anki2')
+        anki_path = os.path.join(self.config.anki_path, self.config.anki_user, 'collection.anki2')
+
         col = Collection(anki_path)
         base_deck = 'Vokabeln::python-test'
         for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
@@ -37,7 +40,7 @@ class FileExporter(VocabExporter):
             vocabs = list(l)
             print(hierarchy, len(vocabs))
             for vocab in vocabs:
-                note = anki.notes.Note(col, model=col.models.by_name('Vocabulary Simple'))
+                note = anki.notes.Note(col, model=col.models.by_name(self.config.card_model))
                 note['kanjis'] = vocab.get_kanji()
                 kana, translation = vocab.get_kana_with_translation()
                 note['kana'] = kana

@@ -5,3 +5,5 @@ out/
 *.xlsx
 
 **/__pycache__/**
+
+config.json
