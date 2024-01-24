@@ -38,7 +38,7 @@ class AnkiExporter(VocabExporter):
         kanji_dict = {kanji[0]: kanji[1] for kanji in (line.split(" ", 1) for line in kanji_lines)}
 
         col = Collection(anki_path)
-        base_deck = 'Vokabeln::Marugoto'
+        base_deck = self.config.anki_deck
         for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
             deck_id = col.decks.id(f'{base_deck}::{self.level}-{self.language}::{"::".join(hierarchy)}')
             # deck = col.decks.get(deck_id)

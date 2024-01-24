@@ -42,7 +42,7 @@ class Urls:
 class Config:
     anki_user: str
     anki_path: str
-
+    anki_deck: str
     card_model: str
 
     @staticmethod
@@ -61,6 +61,7 @@ class Config:
             anki_path = os.path.expanduser(config.get('anki', 'path'))
         except (KeyError, NoSectionError):
             anki_path = anki_default_paths[platform]()
+        anki_deck = config.get('anki', 'deck', fallback='Vocabulary::Japanese')
         anki_card_model = config.get('anki', 'card_model', fallback='Vocabulary Simple')
 
-        return Config(anki_user, anki_path, anki_card_model)
+        return Config(anki_user, anki_path, anki_deck, anki_card_model)
