@@ -121,7 +121,6 @@ class VocabA1(Vocab):
 
     @staticmethod
     def from_table_row(row: tuple[str, str, str, str, str, str, str, str, str]):
-        print(row)
         card_id, kana, kanji, accent, romaji, translation, lesson, word_type, _ = row
         reformatted_lesson = convert_lesson(lesson)
         topic = calculate_topic(lesson)
@@ -171,7 +170,6 @@ class VocabA2(Vocab):
 
     @staticmethod
     def from_table_row(row: tuple[str, str, str, str, str, str, str, str, str, str]):
-        print(row)
         word_id, kana, kanji, accent, dictionary_form, verb_group, translation, lesson, word_type = row[:9]
         reformatted_lesson = convert_lesson(lesson)
         topic = calculate_topic(lesson)
