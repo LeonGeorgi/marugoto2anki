@@ -92,8 +92,17 @@ class VocabB(Vocab):
 @dataclass
 class VocabA1(Vocab):
     def get_csv_row(self) -> Tuple:
-        # TODO
-        pass
+        return (
+            self.id,
+            self.topic,
+            self.lesson,
+            self.kana,
+            self.kanji if self.kanji != self.kana else "",
+            self.translation,
+            self.accent,
+            self.romaji,
+            self.word_type
+        )
 
     lesson: str
 
@@ -121,10 +130,10 @@ class VocabA1(Vocab):
 
     @staticmethod
     def from_table_row(row: tuple[str, str, str, str, str, str, str, str, str]):
-        card_id, kana, kanji, accent, romaji, translation, lesson, word_type, _ = row
+        word_id, kana, kanji, accent, romaji, translation, lesson, word_type, _ = row
         reformatted_lesson = convert_lesson(lesson)
         topic = calculate_topic(lesson)
-        return VocabA1(card_id, topic, translation, reformatted_lesson, kana, kanji, accent, romaji, word_type)
+        return VocabA1(word_id, topic, translation, reformatted_lesson, kana, kanji, accent, romaji, word_type)
 
 
 @dataclass
