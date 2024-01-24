@@ -7,7 +7,7 @@ from util.vocab_service import VocabService
 
 def main():
     urls = Urls.parse_file("urls.json")
-    config = Config.parse_file("config.json")
+    config = Config.parse_file("config.ini")
 
     language, level = ask_user_for_level_and_language(urls)
     vocabulary = VocabService(level, language, urls).retrieve_vocabulary()
