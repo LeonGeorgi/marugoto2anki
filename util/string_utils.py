@@ -14,3 +14,13 @@ def convert_pronunciation(pronunciation: str) -> str:
 
 def convert_pronunciation_to_kana(pronunciation: str) -> str:
     return pronunciation.replace('￢', '').replace('￣', '')
+
+
+def generate_kanji_translation(kanji: str, kanji_dict: dict[str, str]):
+    kanji_translation = ""
+    for index, symbol in enumerate(kanji):
+        if symbol in kanji_dict:
+            kanji_translation += f" {symbol}[{kanji_dict[symbol]}]"
+        else:
+            kanji_translation += symbol
+    return kanji_translation

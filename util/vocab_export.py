@@ -8,6 +8,7 @@ from pathlib import Path
 
 from util.classes import Vocab
 from util.config import Config
+from util.string_utils import convert_pronunciation_to_kana, generate_kanji_translation
 
 sys.path.append("anki")
 import anki
@@ -32,8 +33,12 @@ class AnkiExporter(VocabExporter):
         # Define the path to the Anki SQLite collection
         anki_path = os.path.join(self.config.anki_path, self.config.anki_user, 'collection.anki2')
 
+        with open('kanji_keywords.txt') as f:
+            kanji_lines = f.read().splitlines()
+        kanji_dict = {kanji[0]: kanji[1] for kanji in (line.split(" ", 1) for line in kanji_lines)}
+
         col = Collection(anki_path)
-        base_deck = 'Vokabeln::python-test'
+        base_deck = 'Vokabeln::Marugoto'
         for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
             deck_id = col.decks.id(f'{base_deck}::{self.level}-{self.language}::{"::".join(hierarchy)}')
             # deck = col.decks.get(deck_id)
@@ -41,26 +46,22 @@ class AnkiExporter(VocabExporter):
             print(hierarchy, len(vocabs))
             for vocab in vocabs:
                 note = anki.notes.Note(col, model=col.models.by_name(self.config.card_model))
-                note['kanjis'] = vocab.get_kanji()
+                kanji = vocab.get_kanji()
+                note['kanjis'] = kanji
                 kana, translation = vocab.get_kana_with_translation()
                 note['kana'] = kana
-                # note['type'] = ''
                 note['translation'] = translation
-                note['kanji_meaning'] = 'TODO'
-                # note['sound'] = ''
+                kanji_meaning = generate_kanji_translation(kanji, kanji_dict)
+                if kanji_meaning != kanji:
+                    note['kanji_meaning'] = kanji_meaning
+                # TODO: note['sound'] = …
                 note['accent'] = vocab.get_accent()
                 note['sort_id'] = vocab.id
                 note['uid'] = vocab.id
                 col.addNote(note)
-                # Die Karte dem neuen Deck zuweisen
-                card_1 = note.cards()[0]
-                card_2 = note.cards()[1]
-
-                card_1.did = deck_id
-                card_2.did = deck_id
-
-                card_1.flush()
-                card_2.flush()
+                for card in note.cards():
+                    card.did = deck_id
+                    card.flush()
 
         col.save()
         col.close()
