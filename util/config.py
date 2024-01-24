@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError
 
 import os
 from sys import platform
@@ -59,7 +59,7 @@ class Config:
         anki_user = config.get('anki', 'user', fallback='User 1')
         try:
             anki_path = os.path.expanduser(config.get('anki', 'path'))
-        except KeyError:
+        except (KeyError, NoSectionError):
             anki_path = anki_default_paths[platform]()
         anki_card_model = config.get('anki', 'card_model', fallback='Vocabulary Simple')
 
