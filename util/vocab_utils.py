@@ -16,13 +16,13 @@ def filter_duplicates(entry_list: List[Vocab]) -> List[Vocab]:
 
 
 def get_new_words(old_list: List[Vocab], new_list: List[Vocab]):
-    old_translation_dict = {entry.get_kana_with_translation() for entry in old_list}
-    old_kanji_dict = {entry.get_kanji() for entry in old_list}
+    old_translation_dict = {(entry.kana, entry.translation) for entry in old_list}
+    old_kanji_dict = {entry.kanji for entry in old_list}
 
     def is_old(entry: Vocab):
-        if entry.get_kana_with_translation() in old_translation_dict:
+        if (entry.kana, entry.translation) in old_translation_dict:
             return True
-        if entry.get_kanji() in old_kanji_dict:
+        if entry.kanji in old_kanji_dict:
             return True
         return False
 

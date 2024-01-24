@@ -39,25 +39,27 @@ class AnkiExporter(VocabExporter):
 
         col = Collection(anki_path)
         base_deck = self.config.anki_deck
-        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
+        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.lesson_hierarchy):
             deck_id = col.decks.id(f'{base_deck}::{self.level}-{self.language}::{"::".join(hierarchy)}')
-            # deck = col.decks.get(deck_id)
             vocabs = list(l)
             print(hierarchy, len(vocabs))
             for vocab in vocabs:
+                vocab: Vocab
                 note = anki.notes.Note(col, model=col.models.by_name(self.config.card_model))
-                kanji = vocab.get_kanji()
-                note['kanjis'] = kanji
-                kana, translation = vocab.get_kana_with_translation()
-                note['kana'] = kana
-                note['translation'] = translation
-                kanji_meaning = generate_kanji_translation(kanji, kanji_dict)
-                if kanji_meaning != kanji:
-                    note['kanji_meaning'] = kanji_meaning
+                note['uid'] = vocab.uid
+                note['kanjis'] = vocab.kanji
+                note['kana'] = vocab.kana
+                note['translation'] = vocab.translation
+                note['sort_id'] = vocab.sort_id
+                if vocab.accent:
+                    note['accent'] = vocab.accent
+                if vocab.word_type:
+                    note['type'] = vocab.word_type
                 # TODO: note['sound'] = …
-                note['accent'] = vocab.get_accent()
-                note['sort_id'] = vocab.id
-                note['uid'] = vocab.id
+                kanji_meaning = generate_kanji_translation(vocab.kanji, kanji_dict)
+                if kanji_meaning != vocab.kanji:
+                    note['kanji_meaning'] = kanji_meaning
+                print(note.fields)
                 col.addNote(note)
                 for card in note.cards():
                     card.did = deck_id
@@ -74,7 +76,7 @@ class FileExporter(VocabExporter):
     language: str
 
     def export_vocabulary(self):
-        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
+        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.lesson_hierarchy):
             vocabs = list(l)
             out_folder = f"out/excel/{self.level}/{self.language}/{'-'.join(hierarchy)}"
             create_out_folder(out_folder)
