@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from util.classes import Vocab
+from util.config import Config
 
 sys.path.append("anki")
 import anki
@@ -14,21 +15,23 @@ from anki.storage import Collection
 
 
 class VocabExporter(ABC):
-
     @abstractmethod
     def export_vocabulary(self):
         pass
 
 
 @dataclass
-class FileExporter(VocabExporter):
+class AnkiExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
 
+    config: Config
+
     def export_vocabulary(self):
         # Define the path to the Anki SQLite collection
-        anki_path = os.path.join(os.path.expanduser('~/Library/Application Support/Anki2/User 1'), 'collection.anki2')
+        anki_path = os.path.join(self.config.anki_path, self.config.anki_user, 'collection.anki2')
+
         col = Collection(anki_path)
         base_deck = 'Vokabeln::python-test'
         for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
@@ -37,7 +40,7 @@ class FileExporter(VocabExporter):
             vocabs = list(l)
             print(hierarchy, len(vocabs))
             for vocab in vocabs:
-                note = anki.notes.Note(col, model=col.models.by_name('Vocabulary Simple'))
+                note = anki.notes.Note(col, model=col.models.by_name(self.config.card_model))
                 note['kanjis'] = vocab.get_kanji()
                 kana, translation = vocab.get_kana_with_translation()
                 note['kana'] = kana
@@ -64,17 +67,17 @@ class FileExporter(VocabExporter):
 
 
 @dataclass
-class AnkiExporter(VocabExporter):
+class FileExporter(VocabExporter):
     vocabulary: list[Vocab]
     level: str
     language: str
 
     def export_vocabulary(self):
-        for group, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
+        for hierarchy, l in itertools.groupby(self.vocabulary, lambda x: x.get_lesson_hierarchy()):
             vocabs = list(l)
-            out_folder = f"out/excel/{self.level}/{self.language}/{group}"
+            out_folder = f"out/excel/{self.level}/{self.language}/{'-'.join(hierarchy)}"
             create_out_folder(out_folder)
-            print(group, len(vocabs))
+            print(hierarchy, len(vocabs))
             with open(f'{out_folder}/cards.csv', 'w') as file:
                 writer = csv.writer(file, delimiter=';')
                 for vocab in vocabs:
