@@ -5,3 +5,6 @@ out/
 *.xlsx
 
 **/__pycache__/**
+
+*.apkg
+cache/

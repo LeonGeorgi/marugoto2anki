@@ -1,0 +1,11 @@
+<span class="question">{{translation}}</span>
+```
+{{FrontSide}}
+
+<hr id=answer>
+
+<div class="kana">
+    <span class="answer">{{kana}}</span>
+</div>
+<hr>
+{{kanjis}}

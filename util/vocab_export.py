@@ -82,51 +82,39 @@ class AnkiExporter(VocabExporter):
 @dataclass
 class GenankiExporter(VocabExporter):
 
-    def create_model_fields(self, fields: list[str]) -> list[dict[str, str]]:
-        model_fields = list()
+    def parse_template_file(self, template_folder: str, card_name: str) -> dict[str, str]:
+        with open(os.path.join(template_folder, card_name), 'r') as f:
+            template_string = f.read()
 
-        for field in fields:
-            model_fields.append(
-                {'name': field}
-            )
-
-        return model_fields
-
-    def create_model_template(self, name: str, front: str, back: str) -> dict[str, str]:
-        return {
-            'name': name,
+        front, back = template_string.split('```')
+        
+        card = {
+            'name': card_name,
             'qfmt': front,
             'afmt': back,
         }
 
-    def create_model_templates(self) -> list[dict[str, str]]:
-        # TODO: Create from template
-        # Should be pretty easy but currently incorrect templates
+        return card
 
-        templates = list()
+    def create_card_model(self, template_folder: str) -> genanki.Model:
+        field_names = ['sort_id', 'uid', 'kana', 'translation', 'kanjis', 'kanji_meaning', 'accent']
+        fields = list(map(lambda field_name: {'name': field_name}, field_names))
 
-        # Templates adapted from template folder to represent files from "FileExporter"
-        templates.append(self.create_model_template(
-            'Card 1',
-            '<span class="question">{{translation}}</span>',
-            '{{FrontSide}}<hr id=answer><div class="kana"><span class="answer">{{kana}}</span></div><hr>{{kanjis}}'
+        template_files = os.listdir(template_folder)
+        if 'style.css' in template_files:
+            template_files.remove('style.css')
+
+            with open(os.path.join(template_folder, 'style.css'), 'r') as f:
+                css = f.read()
+        else:
+            css = ''
+
+        template_files.sort()
+
+        templates = list(map(
+            lambda template: self.parse_template_file(template_folder, template),
+            template_files
         ))
-
-        templates.append(self.create_model_template(
-            'Card 2',
-            '<div class="kana"><span class="question">{{kana}}</span></div>',
-            '{{FrontSide}}<hr id=answer><span class="answer">{{translation}}</span><br>{{kanjis}}'
-        ))
-
-        return templates
-
-    def create_card_model(self) -> genanki.Model:
-        fields = self.create_model_fields(['sort_id', 'uid', 'kana', 'translation', 'kanjis', 'kanji_meaning', 'accent'])
-
-        templates = self.create_model_templates()
-
-        with open('templates/Marugoto Vocabulary/style.css', 'r') as f:
-            css = f.read()
 
         model = genanki.Model(
             random.randrange(1 << 30, 1 << 31),
@@ -139,11 +127,11 @@ class GenankiExporter(VocabExporter):
         return model
 
     def export_vocabulary(self, vocabulary: list[Vocab], level: str, language: str):
-        model = self.create_card_model()
+        model = self.create_card_model('templates/Marugoto Simple')
         
         decks = list()
 
-        base_deck_name = f'Marugoto::{level}-{language}'
+        base_deck_name = f'Marugoto::Vocabulary::{level}-{language}'
         for hierarchy, l in itertools.groupby(vocabulary, lambda x: x.get_lesson_hierarchy()):
             deck_name = f'{base_deck_name}::{"::".join(hierarchy)}'
 

@@ -1,0 +1,31 @@
+.card {
+  font-family: arial;
+  font-size: 20px;
+  text-align: center;
+  color: black;
+  background-color: white;
+}
+
+.question {
+  font-size: 30px;
+}
+
+.answer {
+  font-size: 30px;
+}
+
+.kana {
+  width: 100%;
+  display: flex;
+	justify-content: center;
+  align-items: center;
+}
+
+.pronunciation {
+  margin-left: 10px;
+}
+
+.secondary {
+  font-size: 20px;
+  color: gray;
+}
