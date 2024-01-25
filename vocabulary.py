@@ -11,11 +11,7 @@ def main():
 
     language, level = ask_user_for_level_and_language(urls)
     vocabulary = VocabService(level, language, urls).retrieve_vocabulary()
-    get_exporter(config).export_vocabulary(vocabulary, level, language)
-
-def get_exporter(config: Config):
-    return AnkiExporter(config)
-
+    config.exporter.export_vocabulary(vocabulary, level, language)
 
 if __name__ == '__main__':
     main()
