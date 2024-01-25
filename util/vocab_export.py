@@ -61,7 +61,6 @@ class AnkiExporter(VocabExporter):
                 kanji_meaning = generate_kanji_translation(vocab.kanji, kanji_dict)
                 if kanji_meaning != vocab.kanji:
                     note['kanji_meaning'] = kanji_meaning
-                print(note.fields)
                 col.addNote(note)
                 for card in note.cards():
                     card.did = deck_id

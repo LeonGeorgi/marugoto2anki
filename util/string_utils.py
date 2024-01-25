@@ -1,5 +1,4 @@
 def convert_lesson(lesson_string: str) -> str:
-    print(lesson_string)
     return str(int(lesson_string.removesuffix("ス")))
 
 
