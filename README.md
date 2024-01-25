@@ -20,6 +20,15 @@ You might have to create a config file called `config.ini`. It is used to define
 anki deck and the card model used for the import. Those parameters will use default values if not specified. An example
 can be found in `example.config.ini`
 
+#### [anki]
+
+`exporter`: Name of the exporter which should be used.  
+Available exporters are: `anki`, `file`, `genanki`.  
+The first one edits the Anki database on your system, while the last will generate a deck which can be importer. The file exporter just outputs the vocabulary as CSV files split into lessons.  
+You only need the exporter section related to your selection.
+
+#### [exporter.anki]
+
 `user`: Name of the profile you are using. *Default: User 1*
 
 `path`: Only need to be used if a non-standard location is used! <https://docs.ankiweb.net/files.html>
@@ -27,7 +36,19 @@ can be found in `example.config.ini`
 `deck`: Name of Anki deck that the cards should be imported to. *Default: Vocabulary::Japanese*
 
 `card_model`: Name of the card you are using. *Default: Vocabulary Simple*  
-Needed card fields: `sort_id`, `uid`, `kanjis`, `kana`, `translation`, `kanji_meaning`, `accent`
+Needed card fields: `sort_id`, `uid`, `kanjis`, `kana`, `translation`, `kanji_meaning`, `accent`, `type`
+
+#### [exporter.file]
+
+`out`: Output folder of the CSV files. *Default: out/*
+
+#### [exporter.genanki]
+
+`deck`: Name of Anki deck that the cards should be imported to. *Default: Vocabulary::Japanese*
+
+`card_model`: Name of the card you are using. *Default: Vocabulary Simple*
+
+`out`: Output location of the Anki deck file. *Default: out/*
 
 ### Create kanji cards
 

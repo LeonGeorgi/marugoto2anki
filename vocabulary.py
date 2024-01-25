@@ -1,7 +1,7 @@
 from util.classes import Vocab
 from util.config import Urls, Config
 from util.user_input import ask_user_for_level_and_language
-from util.vocab_export import FileExporter, AnkiExporter
+from util.vocab_export import FileExporter, AnkiExporter, GenankiExporter
 from util.vocab_service import VocabService
 
 
@@ -11,12 +11,7 @@ def main():
 
     language, level = ask_user_for_level_and_language(urls)
     vocabulary = VocabService(level, language, urls).retrieve_vocabulary()
-    get_exporter(vocabulary, level, language, config).export_vocabulary()
-
-
-def get_exporter(vocabulary: list[Vocab], level: str, language: str, config: Config):
-    return AnkiExporter(vocabulary, level, language, config)
-
+    config.exporter.export_vocabulary(vocabulary, level, language)
 
 if __name__ == '__main__':
     main()

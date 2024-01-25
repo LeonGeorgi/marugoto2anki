@@ -1,9 +1,11 @@
 import json
 from dataclasses import dataclass
-from configparser import ConfigParser, NoSectionError
+from configparser import ConfigParser, NoSectionError, NoOptionError
 
 import os
 from sys import platform
+
+from util.vocab_export import  VocabExporter, AnkiExporter, FileExporter,GenankiExporter
 
 
 @dataclass
@@ -40,13 +42,35 @@ class Urls:
 
 @dataclass
 class Config:
-    anki_user: str
-    anki_path: str
-    anki_deck: str
-    card_model: str
+    exporter: VocabExporter
 
     @staticmethod
     def parse_file(filename: str):
+        config = ConfigParser()
+        config.read(filename)
+
+        exporter = Config.parse_exporter_config(config)
+
+        return Config(exporter)
+
+    @staticmethod
+    def parse_exporter_config(config: ConfigParser) -> VocabExporter:
+        exporter_type = config.get('anki', 'exporter', fallback='anki')
+
+        exporter_dict = {
+            'anki': Config.parse_anki_exporter_config,
+            'file': Config.parse_file_exporter_config,
+            'genanki': Config.parse_genanki_exporter_config
+        }
+
+        if exporter_type in exporter_dict:
+            return exporter_dict[exporter_type](config)
+        else:
+            print(f'Invalid exporter name. "{exporter_type}" The following are available: {exporter_dict.keys()}')
+            raise ValueError
+
+    @staticmethod
+    def parse_anki_exporter_config(config: ConfigParser) -> AnkiExporter:
         anki_default_paths = {
             "linux": lambda: os.path.expanduser("~/.local/share/Anki2/"),
             "linux2": lambda: os.path.expanduser("~/.local/share/Anki2/"),
@@ -54,14 +78,28 @@ class Config:
             "win32": lambda: os.path.join(os.getenv('APPDATA'), 'Anki2')
         }
 
-        config = ConfigParser()
-        config.read(filename)
-        anki_user = config.get('anki', 'user', fallback='User 1')
+        anki_user = config.get('exporter.anki', 'user', fallback='User 1')
         try:
-            anki_path = os.path.expanduser(config.get('anki', 'path'))
-        except (KeyError, NoSectionError):
+            anki_path = os.path.expanduser(config.get('exporter.anki', 'path'))
+        except (KeyError, NoSectionError, NoOptionError):
             anki_path = anki_default_paths[platform]()
-        anki_deck = config.get('anki', 'deck', fallback='Vocabulary::Japanese')
-        anki_card_model = config.get('anki', 'card_model', fallback='Vocabulary Simple')
+        
+        anki_deck = config.get('exporter.anki', 'deck', fallback='Vocabulary::Japanese')
+        card_model = config.get('exporter.anki', 'card_model', fallback='Vocabulary Simple')
 
-        return Config(anki_user, anki_path, anki_deck, anki_card_model)
+        return AnkiExporter(anki_user, anki_path, anki_deck, card_model)
+
+    @staticmethod
+    def parse_file_exporter_config(config: ConfigParser) -> FileExporter:
+        output_folder = config.get('exporter.file', 'out', fallback='out')
+
+        return FileExporter(output_folder)
+
+    @staticmethod
+    def parse_genanki_exporter_config(config: ConfigParser) -> GenankiExporter:
+        anki_deck = config.get('exporter.genanki', 'deck', fallback='Vocabulary::Japanese')
+        card_model = config.get('exporter.genanki', 'card_model', fallback='Vocabulary Simple')
+
+        output_folder = config.get('exporter.genanki', 'out', fallback='out')
+
+        return GenankiExporter(anki_deck, card_model, output_folder)

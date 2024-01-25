@@ -7,3 +7,6 @@ out/
 **/__pycache__/**
 
 config.ini
+
+*.apkg
+cache/
