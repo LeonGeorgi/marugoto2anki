@@ -64,9 +64,7 @@ class AnkiExporter(VocabExporter):
                 col.addNote(note)
                 for card in note.cards():
                     card.did = deck_id
-                    card.flush()
-
-        col.save()
+                    col.update_card(card)
         col.close()
 
 
