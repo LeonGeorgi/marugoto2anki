@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List
 
 from util.classes import Vocab
-from util.config import Config
+from util.config import Urls
 from util.excel_import import get_vocab_list_by_filenames
 from util.vocab_utils import get_new_words, filter_duplicates
 
@@ -11,20 +11,20 @@ from util.vocab_utils import get_new_words, filter_duplicates
 class VocabService:
     level: str
     language: str
-    config: Config
+    level_urls: Urls
 
     def retrieve_vocabulary(self):
         new_words_for_lesson: List[Vocab] = self.get_new_vocabulary()
-        new_words_sorted: List[Vocab] = sorted(new_words_for_lesson, key=lambda x: x.get_lesson_hierarchy())
+        new_words_sorted: List[Vocab] = sorted(new_words_for_lesson, key=lambda x: x.lesson_hierarchy)
         return new_words_sorted
 
     def get_new_vocabulary(self):
-        new_urls = self.config.get_urls(self.level, self.language)
-        previous_level = self.config.get_previous_level(self.level)
+        new_urls = self.level_urls.get_urls(self.level, self.language)
+        previous_level = self.level_urls.get_previous_level(self.level)
 
         previous_level_urls: list[str] = []
         if previous_level is not None:
-            previous_level_urls = self.config.get_urls(previous_level, self.language)
+            previous_level_urls = self.level_urls.get_urls(previous_level, self.language)
 
         return self.get_new_vocabulary_by_filenames(previous_level, new_urls, previous_level_urls)
 

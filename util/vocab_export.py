@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from util.classes import Vocab
+from util.config import Config
+from util.string_utils import convert_pronunciation_to_kana, generate_kanji_translation
 
 sys.path.append("anki")
 import anki
@@ -17,59 +19,63 @@ import genanki
 import random
 
 class VocabExporter(ABC):
-
     @abstractmethod
     def export_vocabulary(self, vocabulary: list[Vocab], level: str, language: str):
         pass
 
 
 @dataclass
-class FileExporter(VocabExporter):
+class AnkiExporter(VocabExporter):
+    config: Config
+
     def export_vocabulary(self, vocabulary: list[Vocab], level: str, language: str):
         # Define the path to the Anki SQLite collection
-        anki_path = os.path.join(os.path.expanduser('~/Library/Application Support/Anki2/User 1'), 'collection.anki2')
+        anki_path = os.path.join(self.config.anki_path, self.config.anki_user, 'collection.anki2')
+
+        with open('kanji_keywords.txt') as f:
+            kanji_lines = f.read().splitlines()
+        kanji_dict = {kanji[0]: kanji[1] for kanji in (line.split(" ", 1) for line in kanji_lines)}
+
         col = Collection(anki_path)
-        base_deck = 'Vokabeln::python-test'
-        for hierarchy, l in itertools.groupby(vocabulary, lambda x: x.get_lesson_hierarchy()):
+        base_deck = self.config.anki_deck
+        for hierarchy, l in itertools.groupby(vocabulary, lambda x: x.lesson_hierarchy):
             deck_id = col.decks.id(f'{base_deck}::{level}-{language}::{"::".join(hierarchy)}')
-            # deck = col.decks.get(deck_id)
             vocabs = list(l)
             print(hierarchy, len(vocabs))
             for vocab in vocabs:
-                note = anki.notes.Note(col, model=col.models.by_name('Vocabulary Simple'))
-                note['kanjis'] = vocab.get_kanji()
-                kana, translation = vocab.get_kana_with_translation()
-                note['kana'] = kana
-                # note['type'] = ''
-                note['translation'] = translation
-                note['kanji_meaning'] = 'TODO'
-                # note['sound'] = ''
-                note['accent'] = vocab.get_accent()
-                note['sort_id'] = vocab.id
-                note['uid'] = vocab.id
+                vocab: Vocab
+                note = anki.notes.Note(col, model=col.models.by_name(self.config.card_model))
+                note['uid'] = vocab.uid
+                note['kanjis'] = vocab.kanji
+                note['kana'] = vocab.kana
+                note['translation'] = vocab.translation
+                note['sort_id'] = vocab.sort_id
+                if vocab.accent:
+                    note['accent'] = vocab.accent
+                if vocab.word_type:
+                    note['type'] = vocab.word_type
+                # TODO: note['sound'] = …
+                kanji_meaning = generate_kanji_translation(vocab.kanji, kanji_dict)
+                if kanji_meaning != vocab.kanji:
+                    note['kanji_meaning'] = kanji_meaning
+                print(note.fields)
                 col.addNote(note)
-                # Die Karte dem neuen Deck zuweisen
-                card_1 = note.cards()[0]
-                card_2 = note.cards()[1]
-
-                card_1.did = deck_id
-                card_2.did = deck_id
-
-                card_1.flush()
-                card_2.flush()
+                for card in note.cards():
+                    card.did = deck_id
+                    card.flush()
 
         col.save()
         col.close()
 
 
 @dataclass
-class AnkiExporter(VocabExporter):
+class FileExporter(VocabExporter):
     def export_vocabulary(self, vocabulary: list[Vocab], level: str, language: str):
-        for group, l in itertools.groupby(vocabulary, lambda x: x.get_lesson_hierarchy()):
+        for hierarchy, l in itertools.groupby(vocabulary, lambda x: x.lesson_hierarchy):
             vocabs = list(l)
-            out_folder = f"out/excel/{level}/{language}/{group}"
-            AnkiExporter.create_out_folder(out_folder)
-            print(group, len(vocabs))
+            out_folder = f"out/excel/{level}/{language}/{'-'.join(hierarchy)}"
+            FileExporter.create_out_folder(out_folder)
+            print(hierarchy, len(vocabs))
             with open(f'{out_folder}/cards.csv', 'w') as file:
                 writer = csv.writer(file, delimiter=';')
                 for vocab in vocabs:

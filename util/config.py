@@ -1,9 +1,13 @@
 import json
 from dataclasses import dataclass
+from configparser import ConfigParser, NoSectionError
+
+import os
+from sys import platform
 
 
 @dataclass
-class Config:
+class Urls:
     available_levels: list[str]
     level_urls: dict[str, dict[str, list[str]]]
 
@@ -30,5 +34,34 @@ class Config:
     @staticmethod
     def parse_file(filename: str):
         with open(filename, 'r') as f:
-            config = json.load(f)
-        return Config(config['levels'], config['urls'])
+            urls = json.load(f)
+        return Urls(urls['levels'], urls['urls'])
+
+
+@dataclass
+class Config:
+    anki_user: str
+    anki_path: str
+    anki_deck: str
+    card_model: str
+
+    @staticmethod
+    def parse_file(filename: str):
+        anki_default_paths = {
+            "linux": lambda: os.path.expanduser("~/.local/share/Anki2/"),
+            "linux2": lambda: os.path.expanduser("~/.local/share/Anki2/"),
+            "darwin": lambda: os.path.expanduser("~/Library/Application Support/Anki2/"),
+            "win32": lambda: os.path.join(os.getenv('APPDATA'), 'Anki2')
+        }
+
+        config = ConfigParser()
+        config.read(filename)
+        anki_user = config.get('anki', 'user', fallback='User 1')
+        try:
+            anki_path = os.path.expanduser(config.get('anki', 'path'))
+        except (KeyError, NoSectionError):
+            anki_path = anki_default_paths[platform]()
+        anki_deck = config.get('anki', 'deck', fallback='Vocabulary::Japanese')
+        anki_card_model = config.get('anki', 'card_model', fallback='Vocabulary Simple')
+
+        return Config(anki_user, anki_path, anki_deck, anki_card_model)
