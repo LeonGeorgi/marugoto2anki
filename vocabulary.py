@@ -6,10 +6,12 @@ from util.vocab_service import VocabService
 
 
 def main():
-    config = Config.parse_file("config.json")
-    language, level = ask_user_for_level_and_language(config)
-    vocabulary = VocabService(level, language, config).retrieve_vocabulary()
-    get_exporter().export_vocabulary(vocabulary, level, language)
+    urls = Urls.parse_file("urls.json")
+    config = Config.parse_file("config.ini")
+
+    language, level = ask_user_for_level_and_language(urls)
+    vocabulary = VocabService(level, language, urls).retrieve_vocabulary()
+    get_exporter(config).export_vocabulary(vocabulary, level, language)
 
 def get_exporter(config: Config):
     return AnkiExporter(config)
